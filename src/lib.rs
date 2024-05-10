@@ -6,7 +6,11 @@ use quote::quote;
 pub fn derive_enum_from(input: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(input as syn::DeriveInput);
     // print!("{:#?}", input);
+    // get the ident
     let ident = input.ident;
+    // get generics
+    let generics = input.generics;
+    // get enum variants
     let variants = match input.data {
         syn::Data::Enum(data) => data.variants,
         _ => panic!("EnumFrom only works on enums"),
@@ -23,7 +27,7 @@ pub fn derive_enum_from(input: TokenStream) -> TokenStream {
                     let field = fields.unnamed.first().expect("should have 1 field");
                     let ty = &field.ty;
                     quote! {
-                        impl From<#ty> for #ident {
+                        impl #generics From<#ty> for #ident #generics {
                             fn from(v: #ty) -> Self {
                                 #ident::#var(v)
                             }
